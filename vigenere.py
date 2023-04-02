@@ -20,6 +20,7 @@ max_key_size = 20
 
 # Alphabet
 alph = "abcdefghijklmnopqrstuvwxyz"
+[12, 4, 6, 13, 12, 12, 4]
 
 # Coincidende Indexes
 english_index = 0.0667
@@ -151,12 +152,14 @@ english_frequency = {
     'j': 0.10/100,
     'z': 0.07/100
 }
-char_frequencies = {}
+
 for key_size in possible_key_sizes:
+    shifts_per_bin = []
     text_splitted_into_bins = split_text(encrypted_text, size=key_size)
     for bin in text_splitted_into_bins:
+        char_frequencies = {}
+        # Char frequency if does not exist
         for char in bin:
-            # Char frequency if does not exist
             if char not in char_frequencies.keys():
                 count = 0
                 for c in bin:
@@ -164,12 +167,15 @@ for key_size in possible_key_sizes:
                         count += 1
                 freq = float(count) / len(bin)
                 char_frequencies[char] = freq
-        print(char_frequencies)
         shifts = []
         for k, v in char_frequencies.items():
             for k_e, v_e in english_frequency.items():
                 if isclose(v_e, v, abs_tol=0.005):
                     shifts.append(abs(ord(k) - ord(k_e)))
-                    break
-        print(shifts)
+        if len(shifts) != 0:
+            shifts_per_bin.append(max(set(shifts), key=shifts.count))
+        else:
+            print("######### Could not find shift #########")
+    print(
+        f"For key size {key_size}, The shifts per bin would be: {shifts_per_bin}")
 # Get the key (with the frequency analysis) and decipher it.
